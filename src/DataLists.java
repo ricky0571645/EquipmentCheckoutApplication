@@ -33,6 +33,7 @@ public class DataLists
 				index++;
 			}
 		}
+		descendingItemArray = new ArrayList<Item>();
 		remainingItems = itemArray.size();
 	}
 	

@@ -50,7 +50,7 @@ public class CheckoutInfoPanel extends JPanel {
 	private ArrayList<Item> itemArray;
 	private ArrayList<User> userArray;
 	private ArrayList<Item> descendingItemArray;
-	private ArrayList<Integer> selectedRows;
+	private ArrayList<Integer> selectedRows = new ArrayList<Integer>();
 	private int totalSelected = 0;
 
 	public CheckoutInfoPanel(DataLists dataList) 
@@ -94,16 +94,16 @@ public class CheckoutInfoPanel extends JPanel {
 
 		      public void tableChanged(TableModelEvent e) 
 		      {
-		         if(((Boolean)itemTable.getValueAt(e.getFirstRow(), e.getColumn()) == true))
+		    	 int selectedRow = e.getFirstRow();
+		         if(((Boolean)itemTable.getValueAt(selectedRow, e.getColumn()) == true))
         		 {
 		        	 totalSelected++;
-		        	 selectedRows.add(e.getFirstRow());
-		        	 System.out.println(totalSelected);
+		        	 selectedRows.add(selectedRow);
         		 }
-		         else if(((Boolean)itemTable.getValueAt(e.getFirstRow(), e.getColumn()) == false))
+		         else if(((Boolean)itemTable.getValueAt(selectedRow, e.getColumn()) == false))
         		 {
 		        	 totalSelected--;
-		        	 selectedRows.remove(selectedRows.indexOf(e.getFirstRow()));
+		        	 selectedRows.remove(selectedRows.indexOf(selectedRow));
         		 }
 		        	 
 		      }
@@ -474,6 +474,7 @@ public class CheckoutInfoPanel extends JPanel {
 	    }
 	}
 	
+	//----------REPLACING THIS METHODS!!!
 	private void itemCheckedOut(String name, Date dueDate, String other)
 	{
 		for(int i = 0; i < itemTable.getSelectedRowCount(); i++ )
@@ -482,4 +483,13 @@ public class CheckoutInfoPanel extends JPanel {
 		}
 		
 	}
+	
+//	private void itemCheckedOut(String name, Date dueDate, String other)
+//	{
+//		for(int i = 0; i < totalSelected; i++ )
+//		{
+//			if(itemArray.get(i).)
+//			itemArray.get(itemTable.getSelectedRows()[i]).checkingOut(name, dueDate, other);
+//		}
+//	}
 }
