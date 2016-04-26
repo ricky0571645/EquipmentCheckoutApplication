@@ -385,29 +385,37 @@ public class CheckoutInfoPanel extends JPanel {
 	}
 	
 	
+	/*
+	 * THIS METHOD WILL ADD THE CHECKOUT ITEMS TO THE EXCEL FILE
+	 */
 	private void addItemsToExcel()
 	{
 		if(itemTable.getSelectedRowCount() <= 8)
 		{
-			for(int i = 0; i < itemTable.getSelectedRowCount(); i++ )
+			for(int i = 0; i < totalSelected; i++ )
 			{
 				for(int j = 0; j < 6; j++)
 				{
 					Cell populate = sheet.getRow(5 + i).getCell(j);
 					switch(j)
 					{
-						case 0: populate.setCellValue(itemArray.get(itemTable.getSelectedRows()[i]).getCheckoutCode()); break;
-						case 1: populate.setCellValue(itemArray.get(itemTable.getSelectedRows()[i]).getItemName()); break;
-						case 2: populate.setCellValue(itemArray.get(itemTable.getSelectedRows()[i]).getModelNumber()); break;
-						case 3: populate.setCellValue(itemArray.get(itemTable.getSelectedRows()[i]).getSerialNumber()); break;
-						case 4: populate.setCellValue(itemArray.get(itemTable.getSelectedRows()[i]).getDecalNumber()); break;
-						case 5: populate.setCellValue("$" + itemArray.get(itemTable.getSelectedRows()[i]).getCost() + ".00"); break;
+						case 0: populate.setCellValue(descendingItemArray.get(selectedRows.get(i)).getCheckoutCode()); break;
+						case 1: populate.setCellValue(descendingItemArray.get(selectedRows.get(i)).getItemName()); break;
+						case 2: populate.setCellValue(descendingItemArray.get(selectedRows.get(i)).getModelNumber()); break;
+						case 3: populate.setCellValue(descendingItemArray.get(selectedRows.get(i)).getSerialNumber()); break;
+						case 4: populate.setCellValue(descendingItemArray.get(selectedRows.get(i)).getDecalNumber()); break;
+						case 5: if(descendingItemArray.get(selectedRows.get(i)).getCost().equals("n/a"))
+									populate.setCellValue(descendingItemArray.get(selectedRows.get(i)).getCost());
+								else
+									populate.setCellValue("$" + descendingItemArray.get(selectedRows.get(i)).getCost() + ".00"); 
+								break;
 					}
 					
 				}
 
 			}
-			for(int i = itemTable.getSelectedRowCount(); i < 8; i++)
+			//removes any previous entries on the list
+			for(int i = totalSelected; i < 8; i++)
 			{
 				for(int j = 0; j < 6; j++)
 				{
@@ -475,21 +483,27 @@ public class CheckoutInfoPanel extends JPanel {
 	}
 	
 	//----------REPLACING THIS METHODS!!!
-	private void itemCheckedOut(String name, Date dueDate, String other)
-	{
-		for(int i = 0; i < itemTable.getSelectedRowCount(); i++ )
-		{
-			itemArray.get(itemTable.getSelectedRows()[i]).checkingOut(name, dueDate, other);
-		}
-		
-	}
-	
-//	private void itemCheckedOut(String name, Date dueDate, String other)
+//	private void itemCheckedOut(String name, Date dueDate, String dateAlternative)
 //	{
-//		for(int i = 0; i < totalSelected; i++ )
+//		for(int i = 0; i < itemTable.getSelectedRowCount(); i++ )
 //		{
-//			if(itemArray.get(i).)
-//			itemArray.get(itemTable.getSelectedRows()[i]).checkingOut(name, dueDate, other);
+//			itemArray.get(itemTable.getSelectedRows()[i]).checkingOut(name, dueDate, dateAlternative);
 //		}
+//		
 //	}
+	
+	private void itemCheckedOut(String name, Date dueDate, String dateAlternative)
+	{
+		for(int i = 0; i < itemArray.size(); i++ )
+		{
+			for(int j = 0; j < totalSelected; j++)
+			{
+				if(itemArray.get(i).equals(descendingItemArray.get(selectedRows.get(j))))
+				{
+					itemArray.get(i).checkingOut(name, dueDate, dateAlternative);
+				}
+			}
+//			itemArray.get(itemTable.getSelectedRows()[i]).checkingOut(name, dueDate, other);
+		}
+	}
 }

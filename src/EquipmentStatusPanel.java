@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -70,6 +71,7 @@ public class EquipmentStatusPanel extends JPanel
 		));
 		scrollPane_1.setViewportView(overdueTable);
 		overdueTableModel = (DefaultTableModel) overdueTable.getModel();
+		fillOverdueTable();
 		
 		JLabel lblItemsOverdue = new JLabel("Items Overdue");
 		lblItemsOverdue.setFont(new Font("Calibri", Font.PLAIN, 18));
@@ -116,10 +118,12 @@ public class EquipmentStatusPanel extends JPanel
 	private void fillOverdueTable()
 	{
 //		model.addRow(new Object[]{itemArray.get(0).getCheckoutCode(), itemArray.get(0).getItemName(), itemArray.get(0).getModelNumber()});
+		Date currentDate = new Date();
+		System.out.println(currentDate);
 		for(int i = 0; i < itemArray.size(); i++)
 		{
-			if(!itemArray.get(i).isItemIn())
-			checkedOutTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), itemArray.get(i).getDueDate()});
+			if(!itemArray.get(i).isItemIn() && itemArray.get(i).getDueDate().before(currentDate))
+				overdueTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), dateFormatIncident.format(itemArray.get(i).getDueDate())});
 		}
 	}
 	
