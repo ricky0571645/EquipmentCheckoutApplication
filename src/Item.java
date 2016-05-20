@@ -101,5 +101,18 @@ public class Item
 		this.isIn = false;
 	}
 	
+	public void checkingIn()
+	{
+		this.borrowerName = "";
+		this.dueDate = null;
+		this.isIn = true;
+	}
+	
+	public String toString()
+	{
+		return checkoutCode;
+		
+	}
+	
 	
 }

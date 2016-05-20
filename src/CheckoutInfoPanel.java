@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,7 +43,6 @@ public class CheckoutInfoPanel extends JPanel {
 	private JTable itemTable;
 	private MainWindow tester;
 	private Sheet sheet;
-	DefaultTableModel model;
 	private JTextField eventTextField;
 	private JOptionPane changeSuccessful = new JOptionPane();
 	DateFormat dateFormatIncident = new SimpleDateFormat("MM/dd/yyyy");
@@ -52,9 +53,13 @@ public class CheckoutInfoPanel extends JPanel {
 	private ArrayList<Item> descendingItemArray;
 	private ArrayList<Integer> selectedRows = new ArrayList<Integer>();
 	private int totalSelected = 0;
+	private int totalNumberOfCheckoutRows = 6;
+	private Object[][] data;
+	private DefaultTableModel model;
 
 	public CheckoutInfoPanel(DataLists dataList) 
 	{
+		setBackground(Color.WHITE);
 		
 		this.dataList = dataList;
 		this.itemArray = dataList.getItemArray();
@@ -70,8 +75,10 @@ public class CheckoutInfoPanel extends JPanel {
 		add(scrollPane);
 		
 		Object[] columnNames = {"Checkout Code", "Item", "Model", "Select"};
-		Object[][] data = FillItemTable();
-		DefaultTableModel model = new DefaultTableModel(data, columnNames);
+		//Object[][] data = FillItemTable();
+		fillItemTable();
+		
+		model = new DefaultTableModel(data, columnNames);
 		
 		itemTable = new JTable(model)
 		{
@@ -91,21 +98,24 @@ public class CheckoutInfoPanel extends JPanel {
 		
 		itemTable.getModel().addTableModelListener(new TableModelListener() 
 		{
-
+			
 		      public void tableChanged(TableModelEvent e) 
 		      {
 		    	 int selectedRow = e.getFirstRow();
 		         if(((Boolean)itemTable.getValueAt(selectedRow, e.getColumn()) == true))
         		 {
+		        	 System.out.println("Selected Row" + selectedRow);
+		        	 System.out.println("Size of table: " + dataList.getRemainingItems());
 		        	 totalSelected++;
 		        	 selectedRows.add(selectedRow);
+		        	 System.out.println("Row in Array" + selectedRows.get(totalSelected-1));
+		        	 System.out.println("Array data on selected row: " + descendingItemArray.get(selectedRow).toString());
         		 }
 		         else if(((Boolean)itemTable.getValueAt(selectedRow, e.getColumn()) == false))
         		 {
 		        	 totalSelected--;
 		        	 selectedRows.remove(selectedRows.indexOf(selectedRow));
         		 }
-		        	 
 		      }
 		});
 		
@@ -237,14 +247,16 @@ public class CheckoutInfoPanel extends JPanel {
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				if(itemTable.getSelectedRowCount() <= 8){
+				String selectedName = nameComboBox.getSelectedItem().toString();
+				
+				if(itemTable.getSelectedRowCount() <= totalNumberOfCheckoutRows){
 					
 				if(checkoutDatePicker.getDate() != null)
-					itemCheckedOut(tab[nameComboBox.getSelectedIndex()].toString(), returnDatePicker.getDate(), "none");
+					itemCheckedOut(selectedName, returnDatePicker.getDate(), "none");
 				else if(longtermCheckbox.isSelected())
-					itemCheckedOut(tab[nameComboBox.getSelectedIndex()].toString(), fakeDate, "LONGTERM");
+					itemCheckedOut(selectedName, fakeDate, "LONGTERM");
 				else
-					itemCheckedOut(tab[nameComboBox.getSelectedIndex()].toString(),fakeDate, " ");
+					itemCheckedOut(selectedName, null, " ");
 				
 				changeSuccessful.setLayout(getLayout());
 				changeSuccessful.showMessageDialog(null, "Item(s) Successfully Checked Out!");
@@ -262,6 +274,11 @@ public class CheckoutInfoPanel extends JPanel {
 					changeSuccessful.showMessageDialog(null, "Please limit checkout items to 8 or less.");
 				}
 				
+				dataList.setRemainingItems(dataList.getRemainingItems() - totalSelected);
+				
+				descendingItemArray.clear();
+				
+				serialize(dataList);
 			}
 		});
 		
@@ -271,23 +288,23 @@ public class CheckoutInfoPanel extends JPanel {
 			{
 				try {
 					
-					if(itemTable.getSelectedRowCount() <= 8){
+					if(itemTable.getSelectedRowCount() <= totalNumberOfCheckoutRows){
 					//create a file, a workbook, and add the workbook to the file
 					FileInputStream fileIn = new FileInputStream(new File("checkoutForm.xlsx"));
 					Workbook wb = new XSSFWorkbook(fileIn);
 					
 					sheet = wb.getSheetAt(0);
 					
-					Cell nameCell = sheet.getRow(21+4).getCell(3);
-					Cell issuedByCell = sheet.getRow(10+4).getCell(1);
-					Cell checkoutDateCell = sheet.getRow(10+4).getCell(5);
-					Cell returnDateCell = sheet.getRow(11+4).getCell(5);
-					Cell eventCell = sheet.getRow(16).getCell(1);
+					Cell nameCell = sheet.getRow(17 + totalNumberOfCheckoutRows).getCell(3);
+					Cell issuedByCell = sheet.getRow(6 + totalNumberOfCheckoutRows).getCell(1);
+					Cell checkoutDateCell = sheet.getRow(6 + totalNumberOfCheckoutRows).getCell(5);
+					Cell returnDateCell = sheet.getRow(7 + totalNumberOfCheckoutRows).getCell(5);
+					Cell eventCell = sheet.getRow(8 + totalNumberOfCheckoutRows).getCell(1);
 					
 					//-------------ADD ITEMS TO EXCEL SHEET-----------
 					clearExcelFile(nameCell,issuedByCell, checkoutDateCell, returnDateCell, eventCell);
 					fillExcelFile(nameCell,issuedByCell, checkoutDateCell, returnDateCell, eventCell, fakeDate, nameComboBox,
-							issuerList, checkoutDatePicker, returnDatePicker, longtermCheckbox, tab);
+							issuerList, checkoutDatePicker, returnDatePicker, longtermCheckbox);
 					addItemsToExcel();
 					
 					//-------------COMPLETE EXCEL WRITE TO-----------
@@ -323,6 +340,11 @@ public class CheckoutInfoPanel extends JPanel {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				
+				dataList.setRemainingItems(dataList.getRemainingItems() - totalSelected);
+				
+				descendingItemArray.clear();
+				
 			}
 		});
 
@@ -343,13 +365,15 @@ public class CheckoutInfoPanel extends JPanel {
 	
 	private void fillExcelFile(Cell nameCell,Cell issuedByCell, Cell checkoutDateCell, Cell returnDateCell,Cell eventCell,
 			Date fakeDate, JComboBox nameComboBox, JList issuerList, JXDatePicker checkoutDatePicker, JXDatePicker returnDatePicker,
-			JCheckBox longtermCheckbox, String[] tab)
+			JCheckBox longtermCheckbox)
 	{
+		String selectedName = nameComboBox.getSelectedItem().toString();
+		
 		eventCell.setCellValue(eventTextField.getText());
-		if(nameComboBox.getSelectedIndex() != -1)
-			nameCell.setCellValue(tab[nameComboBox.getSelectedIndex()].toString());
-		else
-			nameCell.setCellValue(nameComboBox.getSelectedItem().toString());
+		//if(nameComboBox.getSelectedIndex() != -1)
+		//	nameCell.setCellValue(tab[nameComboBox.getSelectedIndex()].toString());
+		//else
+		nameCell.setCellValue(selectedName);
 		
 		if(issuerList.isSelectionEmpty())
 			issuedByCell.setCellValue("Ricky A. Martinez");
@@ -375,12 +399,12 @@ public class CheckoutInfoPanel extends JPanel {
 		
 		
 		if(checkoutDatePicker.getDate() != null)
-			itemCheckedOut(tab[nameComboBox.getSelectedIndex()].toString(), returnDatePicker.getDate(), "none");//dateFormatIncident.format(returnDatePicker.getDate()));
+			itemCheckedOut(selectedName, returnDatePicker.getDate(), "none");//dateFormatIncident.format(returnDatePicker.getDate()));
 		else if(longtermCheckbox.isSelected())
-			itemCheckedOut(tab[nameComboBox.getSelectedIndex()].toString(), fakeDate, "LONGTERM");
+			itemCheckedOut(selectedName, fakeDate, "LONGTERM");
 		else
 		{
-			itemCheckedOut(nameCell.getStringCellValue(), fakeDate, "nothing");
+			itemCheckedOut(selectedName, fakeDate, "nothing");
 		}
 	}
 	
@@ -390,7 +414,7 @@ public class CheckoutInfoPanel extends JPanel {
 	 */
 	private void addItemsToExcel()
 	{
-		if(itemTable.getSelectedRowCount() <= 8)
+		if(itemTable.getSelectedRowCount() <= 6)
 		{
 			for(int i = 0; i < totalSelected; i++ )
 			{
@@ -415,7 +439,7 @@ public class CheckoutInfoPanel extends JPanel {
 
 			}
 			//removes any previous entries on the list
-			for(int i = totalSelected; i < 8; i++)
+			for(int i = totalSelected; i < totalNumberOfCheckoutRows; i++)
 			{
 				for(int j = 0; j < 6; j++)
 				{
@@ -436,10 +460,12 @@ public class CheckoutInfoPanel extends JPanel {
 	}
 	
 	
-	private Object[][] FillItemTable()
+	private void fillItemTable()
 	{
 		int x = 0;
-		Object[][] data = new Object[itemArray.size()][4];
+		//Object[][] data = new Object[dataList.getRemainingItems()][4];
+		System.out.println(dataList.getRemainingItems());
+		data = new Object[dataList.getRemainingItems()][4];
 		for(int i = 0; i < dataList.getRemainingItems(); i++)
 		{
 			if(itemArray.get(i).isItemIn())
@@ -452,7 +478,7 @@ public class CheckoutInfoPanel extends JPanel {
 				x++;
 			}
 		}
-		return data;
+		//return data;
 	}
 	
 	public void setTester(MainWindow tester)
@@ -482,6 +508,7 @@ public class CheckoutInfoPanel extends JPanel {
 	    }
 	}
 	
+	
 	//----------REPLACING THIS METHODS!!!
 //	private void itemCheckedOut(String name, Date dueDate, String dateAlternative)
 //	{
@@ -506,4 +533,22 @@ public class CheckoutInfoPanel extends JPanel {
 //			itemArray.get(itemTable.getSelectedRows()[i]).checkingOut(name, dueDate, other);
 		}
 	}
+	
+	private void serialize(Object e)
+	{
+		try
+	      {
+	         FileOutputStream fileOut = new FileOutputStream("/tmp/dataList.ser");
+	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	         out.writeObject(e);
+	         out.close();
+	         fileOut.close();
+	         System.out.printf("Serialized data is saved in /tmp/dataList.ser");
+	      }catch(IOException i)
+	      {
+	          i.printStackTrace();
+	      }
+	}
+	
+	
 }

@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Color;
 
 public class EquipmentStatusPanel extends JPanel 
 {
@@ -25,12 +26,14 @@ public class EquipmentStatusPanel extends JPanel
 	DataLists dataList;
 	DateFormat dateFormatIncident = new SimpleDateFormat("MM/dd/yyyy");
 	
+	
 
 	/**
 	 * Create the panel.
 	 */
 	public EquipmentStatusPanel(DataLists dataList) 
 	{
+		setBackground(Color.WHITE);
 		
 		this.itemArray = dataList.getItemArray();
 		this.userArray = dataList.getUserArray();
@@ -53,7 +56,7 @@ public class EquipmentStatusPanel extends JPanel
 		fillCheckedOutTable();
 		
 		JLabel lblNewLabel = new JLabel("Items Currently Checked Out");
-		lblNewLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+		lblNewLabel.setFont(new Font("Calibri", Font.BOLD, 18));
 		lblNewLabel.setBounds(115, 22, 217, 16);
 		add(lblNewLabel);
 		
@@ -74,21 +77,22 @@ public class EquipmentStatusPanel extends JPanel
 		fillOverdueTable();
 		
 		JLabel lblItemsOverdue = new JLabel("Items Overdue");
-		lblItemsOverdue.setFont(new Font("Calibri", Font.PLAIN, 18));
+		lblItemsOverdue.setFont(new Font("Calibri", Font.BOLD, 18));
 		lblItemsOverdue.setBounds(580, 22, 113, 16);
 		add(lblItemsOverdue);
 		
-		JButton btnNewButton = new JButton("Send Reminder");
-		btnNewButton.setBounds(576, 318, 121, 25);
-		add(btnNewButton);
-		
 		JButton btnCheckIn = new JButton("Check In");
-		btnCheckIn.setBounds(163, 318, 121, 25);
+		
+		btnCheckIn.setBounds(212, 317, 121, 25);
 		add(btnCheckIn);
 		
 		JButton cancelButton = new JButton("Cancel");
-		cancelButton.setBounds(384, 365, 97, 25);
+		cancelButton.setBounds(545, 317, 97, 25);
 		add(cancelButton);
+		
+		/*-----------------------------------------
+		 * -------------BUTTON ACTIONS-------------
+		 -----------------------------------------*/
 		
 		cancelButton.addActionListener(new ActionListener() 
 		{
@@ -102,6 +106,28 @@ public class EquipmentStatusPanel extends JPanel
 				}
 			}
 		});
+		
+		btnCheckIn.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				for(int i = checkedOutTable.getSelectedRowCount()-1; i >= 0; i--)
+				{
+					itemArray.get(checkedOutTable.getSelectedRows()[i]).checkingIn();
+					int selectedRow = checkedOutTable.getSelectedRows()[i];
+					for(int j = 0; j < overdueTable.getRowCount(); j++)
+					{
+						if(checkedOutTable.getValueAt(selectedRow, 0).equals(overdueTable.getValueAt(j, 0)))
+						{
+							overdueTableModel.removeRow(j);
+						}
+					}
+					checkedOutTableModel.removeRow(selectedRow);
+//					overdueTableModel.removeRow(selectedRow);
+					
+				}
+			}
+		});
 
 	}
 	
@@ -111,21 +137,33 @@ public class EquipmentStatusPanel extends JPanel
 		for(int i = 0; i < itemArray.size(); i++)
 		{
 			if(!itemArray.get(i).isItemIn())
-			checkedOutTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), dateFormatIncident.format(itemArray.get(i).getDueDate())});
+			{
+				Date itemDate = itemArray.get(i).getDueDate();
+				if(itemDate != null)
+					checkedOutTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), dateFormatIncident.format(itemDate)});
+				else
+					checkedOutTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), "n/a"});
+			}
 		}
 	}
+	
 	
 	private void fillOverdueTable()
 	{
 //		model.addRow(new Object[]{itemArray.get(0).getCheckoutCode(), itemArray.get(0).getItemName(), itemArray.get(0).getModelNumber()});
 		Date currentDate = new Date();
-		System.out.println(currentDate);
 		for(int i = 0; i < itemArray.size(); i++)
 		{
-			if(!itemArray.get(i).isItemIn() && itemArray.get(i).getDueDate().before(currentDate))
-				overdueTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), dateFormatIncident.format(itemArray.get(i).getDueDate())});
+			if(!itemArray.get(i).isItemIn() )// && itemArray.get(i).getDueDate().before(currentDate))
+			{
+				Date itemDate = itemArray.get(i).getDueDate();
+				if(itemDate != null && itemDate.before(currentDate))
+					overdueTableModel.addRow(new Object[]{itemArray.get(i).getCheckoutCode(), itemArray.get(i).getBorrowerName(), dateFormatIncident.format(itemArray.get(i).getDueDate())});
+				
+			}
 		}
 	}
+	
 	
 	public void setTester(MainWindow tester)
 	{

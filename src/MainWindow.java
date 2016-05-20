@@ -8,9 +8,11 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -69,6 +71,7 @@ public class MainWindow
 		fillEquipmentArray();
 		fillUserArray();
 		dataList = new DataLists(itemArray, userArray);
+		deserialize(dataList);
 		
 		frmCceCheckoutForm = new JFrame();
 		frmCceCheckoutForm.getContentPane().setBackground(SystemColor.activeCaption);
@@ -102,7 +105,7 @@ public class MainWindow
 		
 		JButton equipmentStatusButton = new JButton("Check Equipment Status");
 		equipmentStatusButton.setFont(new Font("Calibri", Font.PLAIN, 16));
-		equipmentStatusButton.setBounds(62, 215, 208, 44);
+		equipmentStatusButton.setBounds(62, 216, 208, 44);
 		equipmentStatusButton.setFocusPainted(false);
 		panel.add(equipmentStatusButton);
 		
@@ -128,6 +131,12 @@ public class MainWindow
 		lblNewLabel.setBounds(29, 13, 275, 68);
 		panel.add(lblNewLabel);
 		
+		JButton settingsButton = new JButton("Settings");
+		settingsButton.setFont(new Font("Calibri", Font.PLAIN, 16));
+		settingsButton.setFocusPainted(false);
+		settingsButton.setBounds(62, 286, 208, 44);
+		panel.add(settingsButton);
+		
 		
 		
 		checkoutFormButton.addActionListener(new ActionListener() 
@@ -152,8 +161,8 @@ public class MainWindow
 				cards.add(equipmentStatusPanel, "equipmentStatusPanel");
 				equipmentStatusPanel.setTester(tester);
 				swapView("equipmentStatusPanel");
-				frmCceCheckoutForm.setSize(900,450);
-				cards.setSize(900,450);
+				frmCceCheckoutForm.setSize(870,400);
+				cards.setSize(870,400);
 			}
 		});
 		
@@ -248,5 +257,26 @@ public class MainWindow
 	public void setSize(int width, int height)
 	{
 		frmCceCheckoutForm.setSize(width, height);
+	}
+	
+	private void deserialize(Object e)
+	{
+		try
+	      {
+	         FileInputStream fileIn = new FileInputStream("/tmp/dataList.ser");
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         e = (DataLists) in.readObject();
+	         in.close();
+	         fileIn.close();
+	      }catch(IOException i)
+	      {
+	         i.printStackTrace();
+	         return;
+	      }catch(ClassNotFoundException c)
+	      {
+	         System.out.println("Datalist class not found");
+	         c.printStackTrace();
+	         return;
+	      }
 	}
 }

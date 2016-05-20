@@ -22,15 +22,22 @@ public class DataLists
 	private void generateListData()
 	{
 		int index = 0;
-		this.userNames = new String[userArray.size()];
+		this.userNames = new String[userArray.size() + 1];
 		this.adminUsers = new String[userArray.size()];
-		for(int i = 0; i < userArray.size(); i++)
+		for(int i = 0; i < userArray.size() + 1; i++)
 		{
-			userNames[i] = userArray.get(i).getFirstName() + " " + userArray.get(i).getLastName();
-			if(userArray.get(i).accountType.equalsIgnoreCase("admin"))
+			if(i == 0)
 			{
-				adminUsers[index] = userNames[i];
-				index++;
+				userNames[i] = "";
+			}
+			else
+			{
+				userNames[i] = userArray.get(i - 1).getFirstName() + " " + userArray.get(i - 1).getLastName();
+				if(userArray.get(i - 1).accountType.equalsIgnoreCase("admin"))
+				{
+					adminUsers[index] = userNames[i];
+					index++;
+				}
 			}
 		}
 		descendingItemArray = new ArrayList<Item>();
@@ -70,6 +77,11 @@ public class DataLists
 	public ArrayList<Item> getdescendingItemArray()
 	{
 		return this.descendingItemArray;
+	}
+	
+	public void setRemainingItems(int updatedRemainingItems)
+	{
+		this.remainingItems = updatedRemainingItems;
 	}
 	
 	
