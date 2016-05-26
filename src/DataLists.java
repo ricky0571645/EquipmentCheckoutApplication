@@ -10,12 +10,14 @@ public class DataLists
 	private String[] adminUsers;
 	private int remainingItems;
 	private ArrayList<Item> descendingItemArray;
+	private int totalItemCount;
 	
 	
 	public DataLists(ArrayList<Item> itemArray, ArrayList<User> userArray)
 	{
 		this.itemArray = itemArray;
 		this.userArray = userArray;
+		totalItemCount = itemArray.size();
 		generateListData();
 	}
 	
@@ -72,6 +74,11 @@ public class DataLists
 	public int getRemainingItems()
 	{
 		return this.remainingItems;
+	}
+	
+	public int getTotalItemCount()
+	{
+		return this.totalItemCount;
 	}
 	
 	public ArrayList<Item> getdescendingItemArray()

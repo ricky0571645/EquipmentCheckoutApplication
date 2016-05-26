@@ -99,6 +99,7 @@ public class Item
 		this.borrowerName = name;
 		this.dueDate = dueDate;
 		this.isIn = false;
+		System.out.println(this.checkoutCode + "is out!");
 	}
 	
 	public void checkingIn()
@@ -106,6 +107,7 @@ public class Item
 		this.borrowerName = "";
 		this.dueDate = null;
 		this.isIn = true;
+		System.out.println(this.checkoutCode + "is in!");
 	}
 	
 	public String toString()

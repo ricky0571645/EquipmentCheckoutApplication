@@ -32,6 +32,7 @@ public class MainWindow
 	private JPanel cards = new JPanel(cardLayout);
 	private CheckoutInfoPanel checkoutPanel;
 	private EquipmentStatusPanel equipmentStatusPanel;
+	private SettingsOptionsPanel userSelectionPanel;
 	private MainWindow tester;
 	private JTextField textField;
 	private ArrayList<Item> itemArray = new ArrayList<Item>();
@@ -71,7 +72,7 @@ public class MainWindow
 		fillEquipmentArray();
 		fillUserArray();
 		dataList = new DataLists(itemArray, userArray);
-		deserialize(dataList);
+//		deserialize(dataList);
 		
 		frmCceCheckoutForm = new JFrame();
 		frmCceCheckoutForm.getContentPane().setBackground(SystemColor.activeCaption);
@@ -132,6 +133,9 @@ public class MainWindow
 		panel.add(lblNewLabel);
 		
 		JButton settingsButton = new JButton("Settings");
+		
+		
+		
 		settingsButton.setFont(new Font("Calibri", Font.PLAIN, 16));
 		settingsButton.setFocusPainted(false);
 		settingsButton.setBounds(62, 286, 208, 44);
@@ -163,6 +167,20 @@ public class MainWindow
 				swapView("equipmentStatusPanel");
 				frmCceCheckoutForm.setSize(870,400);
 				cards.setSize(870,400);
+			}
+		});
+		
+		settingsButton.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				SettingsOptionsPanel userSelectionPanel = new SettingsOptionsPanel(dataList);
+//				equipmentStatusPanel = new EquipmentStatusPanel(dataList);
+				cards.add(userSelectionPanel, "userSelectionPanel");
+				userSelectionPanel.setTester(tester);
+				swapView("userSelectionPanel");
+				frmCceCheckoutForm.setSize(450,320);
+				cards.setSize(450,320);
 			}
 		});
 		
@@ -259,24 +277,24 @@ public class MainWindow
 		frmCceCheckoutForm.setSize(width, height);
 	}
 	
-	private void deserialize(Object e)
-	{
-		try
-	      {
-	         FileInputStream fileIn = new FileInputStream("/tmp/dataList.ser");
-	         ObjectInputStream in = new ObjectInputStream(fileIn);
-	         e = (DataLists) in.readObject();
-	         in.close();
-	         fileIn.close();
-	      }catch(IOException i)
-	      {
-	         i.printStackTrace();
-	         return;
-	      }catch(ClassNotFoundException c)
-	      {
-	         System.out.println("Datalist class not found");
-	         c.printStackTrace();
-	         return;
-	      }
-	}
+//	private void deserialize(Object e)
+//	{
+//		try
+//	      {
+//	         FileInputStream fileIn = new FileInputStream("/tmp/dataList.ser");
+//	         ObjectInputStream in = new ObjectInputStream(fileIn);
+//	         e = (DataLists) in.readObject();
+//	         in.close();
+//	         fileIn.close();
+//	      }catch(IOException i)
+//	      {
+//	         i.printStackTrace();
+//	         return;
+//	      }catch(ClassNotFoundException c)
+//	      {
+//	         System.out.println("Datalist class not found");
+//	         c.printStackTrace();
+//	         return;
+//	      }
+//	}
 }

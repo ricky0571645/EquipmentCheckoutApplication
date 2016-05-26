@@ -113,8 +113,19 @@ public class EquipmentStatusPanel extends JPanel
 			{
 				for(int i = checkedOutTable.getSelectedRowCount()-1; i >= 0; i--)
 				{
-					itemArray.get(checkedOutTable.getSelectedRows()[i]).checkingIn();
+//					itemArray.get(checkedOutTable.getSelectedRows()[i]).checkingIn();
 					int selectedRow = checkedOutTable.getSelectedRows()[i];
+					
+					//--------------check back in
+					for(int j = 0; j < itemArray.size(); j++)
+					{
+						if(checkedOutTable.getValueAt(selectedRow, 0).equals(itemArray.get(j).getCheckoutCode()))
+						{
+							itemArray.get(j).checkingIn();
+						}
+					}
+					
+					//--------------remove overdue value
 					for(int j = 0; j < overdueTable.getRowCount(); j++)
 					{
 						if(checkedOutTable.getValueAt(selectedRow, 0).equals(overdueTable.getValueAt(j, 0)))
@@ -122,6 +133,7 @@ public class EquipmentStatusPanel extends JPanel
 							overdueTableModel.removeRow(j);
 						}
 					}
+					dataList.setRemainingItems(dataList.getRemainingItems() + 1);
 					checkedOutTableModel.removeRow(selectedRow);
 //					overdueTableModel.removeRow(selectedRow);
 					
