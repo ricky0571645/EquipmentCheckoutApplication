@@ -19,9 +19,10 @@ public class DataLists
 		this.userArray = userArray;
 		totalItemCount = itemArray.size();
 		generateListData();
+		generateItemData();
 	}
 	
-	private void generateListData()
+	public void generateListData()
 	{
 		int index = 0;
 		this.userNames = new String[userArray.size() + 1];
@@ -42,8 +43,18 @@ public class DataLists
 				}
 			}
 		}
+		
+	}
+	
+	public void generateItemData()
+	{
 		descendingItemArray = new ArrayList<Item>();
 		remainingItems = itemArray.size();
+	}
+	
+	public void setTotalItemCount(int updatedTotalCount)
+	{
+		this.totalItemCount = updatedTotalCount;
 	}
 	
 	public String[] getNameList()

@@ -1,10 +1,9 @@
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
-import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -12,7 +11,14 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
-public class RemoveUserPanel extends JPanel 
+
+import javax.swing.JButton;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Font;
+
+public class RemoveEquipmentPanel extends JPanel 
 {
 	
 	
@@ -21,9 +27,8 @@ public class RemoveUserPanel extends JPanel
 	private DefaultTableModel defaultTable;
 	private JOptionPane userRemovedDialog = new JOptionPane();
 	private DataLists dataList;
-	private boolean noErrors = true;
 
-	public RemoveUserPanel(DataLists dataList) 
+	public RemoveEquipmentPanel(DataLists dataList) 
 	{
 		this.dataList = dataList;
 		setBackground(Color.WHITE);
@@ -35,9 +40,10 @@ public class RemoveUserPanel extends JPanel
 		
 		defaultTable = new DefaultTableModel();
 		
-		defaultTable.addColumn("Name");
-		defaultTable.addColumn("Department");
-		defaultTable.addColumn("User Type");
+		//"Checkout Code", "Item", "Model"
+		defaultTable.addColumn("Checkout Code");
+		defaultTable.addColumn("Item");
+		defaultTable.addColumn("Model");
 		
 		table = new JTable();
 		table.setModel(defaultTable);
@@ -49,7 +55,7 @@ public class RemoveUserPanel extends JPanel
 		scrollPane.setViewportView(table);
 		
 		ListSelectionModel selectionModel = table.getSelectionModel();
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionMode(selectionModel.SINGLE_SELECTION);
 		
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.setFont(new Font("Calibri", Font.BOLD, 18));
@@ -82,49 +88,48 @@ public class RemoveUserPanel extends JPanel
 		
 		
 		//remove a user from the "Employee List"
-		removeButton.addActionListener(new ActionListener() 
+	removeButton.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
 				if(dataList.getUserArray().size() - 1 > 0)
 				{
-					removeUserFromList();
+					removeItemFromList();
 					userRemovedDialog.setLayout(getLayout());
-					userRemovedDialog.showMessageDialog(null, "User successfully removed");
+					userRemovedDialog.showMessageDialog(null, "Equipment successfully removed");
 					buildTable();
 					
 				}
 				else
-					userRemovedDialog.showMessageDialog(null, "No users to remove.");
+					userRemovedDialog.showMessageDialog(null, "No equipment to remove.");
 			}
 		});
 		
 	}
-	private void removeUserFromList()
+	private void removeItemFromList()
 	{
-		User result;
-		for(int i = 0; i < dataList.getUserArray().size(); i++)
+		Item result;
+		for(int i = 0; i < dataList.getItemArray().size(); i++)
 		{
-			result = dataList.getUserArray().get(i);
-			if((result.getFirstName() + " " + result.getLastName()).equals(defaultTable.getValueAt(table.getSelectedRow(), 0)))
+			result = dataList.getItemArray().get(i);
+			if(result.getCheckoutCode().equals(defaultTable.getValueAt(table.getSelectedRow(), 0)))
 			{
-				dataList.getUserArray().remove(i);
+				dataList.getItemArray().remove(i);
 			}
 		}
-		dataList.generateListData();
+		dataList.setRemainingItems(dataList.getRemainingItems() - 1);
+		dataList.setTotalItemCount(dataList.getTotalItemCount() - 1);
 	}
 	
 	private void buildTable()
 	{
 		defaultTable.setRowCount(0);
-		ArrayList<User> array = dataList.getUserArray();
-		for(int i = 0; i < dataList.getUserArray().size(); i++)
+		for(int i = 0; i < dataList.getItemArray().size(); i++)
 		{
-			User result = dataList.getUserArray().get(i);
-			defaultTable.addRow(new Object[]{result.getFirstName() + " " + result.getLastName(), result.getDepartment(), result.getAccountType()});
+			Item result = dataList.getItemArray().get(i);
+			defaultTable.addRow(new Object[]{result.getCheckoutCode(), result.getItemName(), result.getModelNumber()});
 		}
 	}
-	
 
 	//alows for switching between cards
 	public void setTester(MainWindow tester)

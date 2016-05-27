@@ -40,6 +40,11 @@ public class User
 		this.email = email;
 	}
 	
+	public String getAccountType()
+	{
+		return this.accountType;
+	}
+	
 	
 
 }

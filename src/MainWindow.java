@@ -10,9 +10,13 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -22,7 +26,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
-import org.jdesktop.swingx.JXDatePicker;
 
 public class MainWindow 
 {
@@ -72,7 +75,12 @@ public class MainWindow
 		fillEquipmentArray();
 		fillUserArray();
 		dataList = new DataLists(itemArray, userArray);
-//		deserialize(dataList);
+		try {
+			serialize();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		frmCceCheckoutForm = new JFrame();
 		frmCceCheckoutForm.getContentPane().setBackground(SystemColor.activeCaption);
@@ -277,24 +285,41 @@ public class MainWindow
 		frmCceCheckoutForm.setSize(width, height);
 	}
 	
-//	private void deserialize(Object e)
-//	{
-//		try
-//	      {
-//	         FileInputStream fileIn = new FileInputStream("/tmp/dataList.ser");
-//	         ObjectInputStream in = new ObjectInputStream(fileIn);
-//	         e = (DataLists) in.readObject();
-//	         in.close();
-//	         fileIn.close();
-//	      }catch(IOException i)
-//	      {
-//	         i.printStackTrace();
-//	         return;
-//	      }catch(ClassNotFoundException c)
-//	      {
-//	         System.out.println("Datalist class not found");
-//	         c.printStackTrace();
-//	         return;
-//	      }
-//	}
+	 public  void deserialize() throws Exception 
+	 {
+		 //Employee e = null;
+	      try
+	      {
+	         FileInputStream fileIn = new FileInputStream("./dataList.ser");
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         this.dataList = (DataLists) in.readObject();
+	         in.close();
+	         fileIn.close();
+	      }catch(IOException i)
+	      {
+	         i.printStackTrace();
+	         return;
+	      }catch(ClassNotFoundException c)
+	      {
+	         System.out.println("Employee class not found");
+	         c.printStackTrace();
+	         return;
+	      }
+	 }
+	
+	public void serialize() throws Exception 
+	{
+		try
+	      {
+	         FileOutputStream fileOut = new FileOutputStream("./dataList.ser");
+	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	         out.writeObject(this.dataList);
+	         out.close();
+	         fileOut.close();
+	         System.out.printf("Serialized data is saved in ./dataList.ser");
+	      }catch(IOException i)
+	      {
+	          i.printStackTrace();
+	      }
+	 } 
 }

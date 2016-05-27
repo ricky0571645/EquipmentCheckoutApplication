@@ -56,14 +56,16 @@ public class SettingsOptionsPanel extends JPanel
 		cancelButton.setBounds(180, 229, 89, 29);
 		add(cancelButton);
 		
-		JButton addItemButton = new JButton("Add Item");
+		JButton addItemButton = new JButton("Add Equipment");
+		
 		addItemButton.setForeground(new Color(30, 144, 255));
 		addItemButton.setFont(new Font("Calibri", Font.BOLD, 18));
 		addItemButton.setBackground(Color.WHITE);
 		addItemButton.setBounds(32, 125, 167, 79);
 		add(addItemButton);
 		
-		JButton removeItemButton = new JButton("Remove Item");
+		JButton removeItemButton = new JButton("Remove Equipment");
+		
 		removeItemButton.setForeground(new Color(30, 144, 255));
 		removeItemButton.setFont(new Font("Calibri", Font.BOLD, 18));
 		removeItemButton.setBackground(Color.WHITE);
@@ -100,6 +102,21 @@ public class SettingsOptionsPanel extends JPanel
 			}
 		});
 		
+		addItemButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				AddEquipmentPanel addEquipmentPanel = new AddEquipmentPanel(dataList);
+				if(tester != null)
+				{
+					addEquipmentPanel.setTester(tester);
+					tester.getCards().add(addEquipmentPanel, "addEquipmentPanel");
+					tester.swapView("addEquipmentPanel");
+					tester.setSize(490, 400);
+					tester.getCards().setSize(490, 400);
+				}
+			}
+		});
+		
 		removeUserButton.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -110,6 +127,22 @@ public class SettingsOptionsPanel extends JPanel
 					removeUserPanel.setTester(tester);
 					tester.getCards().add(removeUserPanel, "removeUserPanel");
 					tester.swapView("removeUserPanel");
+					tester.setSize(460, 380);
+					tester.getCards().setSize(460, 380);
+				}
+			}
+		});
+		
+		removeItemButton.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				RemoveEquipmentPanel removeEquipmentPanel = new RemoveEquipmentPanel(dataList);
+				if(tester != null)
+				{
+					removeEquipmentPanel.setTester(tester);
+					tester.getCards().add(removeEquipmentPanel, "removeEquipmentPanel");
+					tester.swapView("removeEquipmentPanel");
 					tester.setSize(460, 380);
 					tester.getCards().setSize(460, 380);
 				}
